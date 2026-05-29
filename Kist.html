@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-select=yes">
+    <title>Язык Кисти</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #2c2418;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .page-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-image: url('https://i.pinimg.com/1200x/ff/c3/ee/ffc3eeb96755df6992d491732664163b.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .content-overlay {
+            background-color: rgba(245, 240, 232, 0.85);
+            backdrop-filter: blur(1px);
+            min-height: 100vh;
+        }
+
+        .nav-bar {
+            background: #2e241a;
+            padding: 1rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid #cfbc9f;
+            color: #f2e4d4;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.6rem 1.4rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-btn:hover {
+            background: #cfbc9f;
+            color: #2e241a;
+            border-color: #cfbc9f;
+        }
+        .nav-btn.active {
+            background: #b48c5c;
+            border-color: #b48c5c;
+            color: white;
+        }
+
+        .intro-banner {
+            max-width: 1120px;
+            margin: 1.5rem auto 0;
+            padding: 1rem 1.4rem;
+            background: rgba(180, 140, 92, 0.14);
+            border: 1px solid rgba(180, 140, 92, 0.28);
+            color: #3f2c1a;
+            border-radius: 28px;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.06);
+        }
+
+        .page-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1.8rem 3rem;
+        }
+        .page {
+            display: none;
+            animation: fade 0.3s ease;
+        }
+        .page.active-page {
+            display: block;
+        }
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(6px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.2rem;
+        }
+        .game-card {
+            background: #fffdf8;
+            border: 1px solid #e1d4c5;
+            border-radius: 24px;
+            padding: 1.6rem 1.5rem;
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .game-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            margin-bottom: 0.85rem;
+            color: #3f2c1a;
+        }
+        .game-card-text {
+            color: #5c4d38;
+            line-height: 1.6;
+            margin-bottom: 1.4rem;
+        }
+        .game-action-btn {
+            align-self: flex-start;
+            background: #b48c5c;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.2rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .game-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(180, 140, 92, 0.2);
+        }
+        .game-panel {
+            margin-top: 2rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #e6d7c3;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+        }
+        .game-panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: #3f2c1a;
+        }
+        .game-panel-text {
+            color: #5b4a34;
+            line-height: 1.7;
+        }
+        .quiz-area {
+            margin-top: 1.6rem;
+        }
+        .quiz-image {
+            width: 100%;
+            min-height: 620px;
+            border-radius: 24px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 1rem 0;
+            border: 1px solid #e1d4c5;
+        }
+        .quiz-question {
+            font-size: 1.05rem;
+            color: #3f2c1a;
+            margin-bottom: 1rem;
+        }
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.9rem;
+        }
+        .option-btn {
+            background: #fffaf0;
+            border: 1px solid #d8c7b0;
+            color: #4a3825;
+            padding: 0.9rem 1rem;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            min-height: 52px;
+        }
+        .option-btn:hover {
+            background: #f7efe3;
+            border-color: #cdb89f;
+        }
+        .option-btn.correct {
+            background: #d7e7cd;
+            border-color: #9ebb7a;
+            color: #2f4d22;
+        }
+        .option-btn.wrong {
+            background: #f5d2d0;
+            border-color: #df8d8a;
+            color: #7d2f2c;
+        }
+        .quiz-result {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: #3f2c1a;
+        }
+        .quiz-result.correct {
+            color: #3e6d30;
+        }
+        .quiz-result.wrong {
+            color: #8a2b2b;
+        }
+        .next-question-btn {
+            margin-top: 1.2rem;
+            background: #b48c5c;
+            border: none;
+            color: white;
+            padding: 0.85rem 1.3rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            border-left: 5px solid #b48c5c;
+            padding-left: 1.2rem;
+            color: #2e241a;
+        }
+        .page-sub {
+            color: #5b4a34;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        .art-card {
+            background: #fffef7;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e2d4c4;
+        }
+        .art-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 28px -8px rgba(0, 0, 0, 0.15);
+        }
+        .art-image {
+            width: 100%;
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            position: relative;
+        }
+        .art-image .image-label {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 6px 12px;
+            border-radius: 0 12px 0 0;
+            width: 100%;
+            text-align: left;
+            font-size: 0.75rem;
+            color: white;
+        }
+        .art-info {
+            padding: 1.2rem;
+        }
+        .art-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            font-family: 'Playfair Display', serif;
+            color: #3f2c1a;
+        }
+        .art-author {
+            font-size: 0.85rem;
+            color: #7f694c;
+            margin: 0.3rem 0 0.5rem;
+            font-style: italic;
+        }
+        .art-style {
+            display: inline-block;
+            background: #e9dfd1;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #5a3f24;
+            margin-top: 0.5rem;
+        }
+
+        .hero-block {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            background: rgba(255, 252, 245, 0.96);
+            border-radius: 32px;
+            border: 1px solid #e8daca;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+        .hero-text {
+            flex: 1.2;
+            padding: 2rem;
+        }
+        .hero-text h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #4e3820;
+            margin-bottom: 1rem;
+            border-left: 4px solid #b48c5c;
+            padding-left: 1rem;
+        }
+        .hero-text p {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .hero-text ul {
+            margin: 1rem 0 0 1.5rem;
+        }
+        .hero-text li {
+            margin-bottom: 0.4rem;
+        }
+        .hero-image {
+            flex: 0.8;
+            background-color: #d9cdbb;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+        .image-placeholder-text {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+        .image-url-input {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(30, 30, 30, 0.8);
+            border: none;
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            width: calc(100% - 24px);
+            max-width: 200px;
+            font-family: monospace;
+            backdrop-filter: blur(4px);
+        }
+        .image-url-input::placeholder {
+            color: #ccc;
+            font-size: 0.65rem;
+        }
+
+        .styles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        .style-card {
+            background: rgba(255, 252, 245, 0.92);
+            border-radius: 28px;
+            padding: 1.4rem 1.8rem;
+            border: 1px solid #e8daca;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.03);
+        }
+        .style-box {
+            display: flex;
+            gap: 1.2rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .style-desc {
+            flex: 1 1 420px;
+            color: #3f2c1a;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        .style-photo {
+            flex: 0 0 380px;
+            min-height: 240px;
+            background: #efe7db;
+            border-radius: 14px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid #e1d4c5;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0.6rem;
+        }
+        .photo-caption {
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6a5a48;
+            margin-top: 0.6rem;
+        }
+        .sample-figure {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .sample-figure img {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid #e1d4c5;
+            display: inline-block;
+        }
+        .sample-figure .figcaption {
+            margin-top: 0.6rem;
+            color: #6a5a48;
+            font-size: 0.9rem;
+        }
+        .more-btn {
+            margin-top: 1rem;
+            background: transparent;
+            border: 1px solid #b48c5c;
+            color: #3f2c1a;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .more-btn:hover { background: #b48c5c; color: #fff; }
+        .history-box {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem 1.2rem;
+            background: rgba(250,248,245,0.95);
+            border: 1px solid #e6d7c3;
+            border-radius: 14px;
+            color: #4a3825;
+            line-height: 1.6;
+        }
+        .style-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #4e3820;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #dac9b4;
+            display: inline-block;
+        }
+        .style-card p {
+            margin: 0.8rem 0;
+            font-size: 0.95rem;
+        }
+        .tech-list {
+            list-style: none;
+            margin: 1rem 0 0.5rem;
+        }
+        .tech-list li {
+            padding-left: 1.2rem;
+            position: relative;
+            margin-bottom: 0.4rem;
+        }
+        .tech-list li::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+            color: #b48c5c;
+        }
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .badge {
+            background: #e6dacb;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        footer {
+            margin-top: 3.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6a5a48;
+            border-top: 1px solid #ddd0be;
+            padding-top: 1.8rem;
+        }
+        @media (max-width: 1100px) {
+            .page-container { padding: 2rem 1.2rem 3rem; }
+            .hero-block { gap: 1.5rem; }
+            .hero-text { padding: 1.8rem; }
+            .hero-image { min-height: 320px; }
+            .gallery-grid { gap: 1.4rem; }
+        }
+        @media (max-width: 900px) {
+            .page-title { font-size: 2.2rem; }
+            .page-sub { font-size: 0.98rem; }
+            .hero-text { padding: 1.5rem; }
+            .nav-bar { gap: 0.75rem; }
+            .nav-btn { padding: 0.55rem 1rem; font-size: 0.95rem; }
+            .quiz-options { grid-template-columns: 1fr; }
+            .game-card { padding: 1.4rem 1.3rem; }
+        }
+        @media (max-width: 760px) {
+            .nav-bar { flex-direction: column; align-items: stretch; padding: 0.75rem 1rem; }
+            .nav-btn { width: 100%; text-align: center; }
+            .hero-block { flex-direction: column; }
+            .hero-text, .hero-image { width: 100%; }
+            .hero-text { padding: 1.4rem; }
+            .hero-image { min-height: 260px; }
+            .style-photo { flex: 1 1 100%; min-height: 220px; }
+            .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+            .page-title { font-size: 1.9rem; }
+            .page-sub { font-size: 0.95rem; }
+            .intro-banner { font-size: 0.95rem; padding: 0.95rem 1rem; border-radius: 24px; }
+            .more-btn { width: 100%; }
+            .history-box { padding: 0.95rem 1rem; }
+            .game-panel, .art-card, .style-card { padding: 1.3rem; }
+        }
+        @media (max-width: 560px) {
+            .page-container { padding: 1.4rem 0.9rem 2.6rem; }
+            .page-title { font-size: 1.7rem; }
+            .hero-text h2 { font-size: 1.5rem; }
+            .hero-text p, .style-card p, .art-author, .art-style, .badge { font-size: 0.9rem; }
+            .badge { padding: 4px 10px; }
+            .nav-btn { font-size: 0.88rem; padding: 0.55rem 0.9rem; }
+            .quiz-image { min-height: 220px; }
+            .page-sub { margin-bottom: 1.5rem; }
+            .badge-group { gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-bg"></div>
+<div class="content-overlay">
+    <div class="nav-bar">
+        <button class="nav-btn active" data-page="gallery">Галерея</button>
+        <button class="nav-btn" data-page="impressionism">Стили</button>
+        <button class="nav-btn" data-page="realism">Техники рисования карандашом</button>
+        <button class="nav-btn" data-page="pencil">Техники рисования тушью</button>
+        <button class="nav-btn" data-page="games">Игры</button>
+    </div>
+
+    <div class="intro-banner">На этом сайте вы можете узнать о стилях и техниках изобразительного искусства.</div>
+
+    <div class="page-container">
+        <div id="galleryPage" class="page active-page">
+            <div class="page-title">Картинная галерея</div>
+            <div class="page-sub">Шедевры мирового искусства: авторы и стили</div>
+            <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+
+        <div id="impressionismPage" class="page">
+            <div class="page-title">Стили в искусстве</div>
+            <div class="page-sub">От импрессионизма до магического реализма</div>
+            
+            <div class="hero-block" id="styleHeroBlock">
+                <div class="hero-text">
+                    <h2>Импрессионизм: свет и мгновение</h2>
+                    <p>Импрессионизм (от фр. impression — «впечатление») — течение последней трети XIX – начала XX века. Художники стремились передать реальный мир в его подвижности и изменчивости, мимолётные впечатления.</p>
+                    <p>Возник во Франции, когда живописцы вышли на пленэр, оставив академические мастерские. Клод Моне, Огюст Ренуар, Эдгар Дега — ключевые имена. После выставки 1874 года критик Луи Леруа высмеял картину Моне «Впечатление. Восход солнца», ироничное замечание дало имя целому направлению.</p>
+                    <div class="badge-group"><span class="badge">Пленэр</span><span class="badge">Чистый цвет</span><span class="badge">Раздельный мазок</span></div>
+                    <button class="more-btn" id="styleMoreBtn">Подробнее</button>
+                    <div class="history-box" id="styleHistory">
+                        <h3>История термина</h3>
+                        <p>Сам термин появился после выставки 1874 года, где была показана картина Клода Моне «Впечатление. Восход солнца». Критик Луи Леруа высмеял работу и назвал её всего лишь «впечатлением», а не законченной картиной. Ироничное замечание неожиданно стало названием целого художественного направления.</p>
+                        <p>Импрессионизм распространился и стал влиять на последующие поколения художников, пробуждая интерес к свету, цвету и свободной манере письма.</p>
+                    </div>
+                </div>
+                <div class="hero-image" style="background-image: url('https://ir.ozone.ru/s3/multimedia-1-6/w500/6985695606.jpg');">
+                    <div style="position: absolute; bottom: 12px; left: 12px; right: 12px; text-align:center; color:#fff; font-size:0.9rem; text-shadow:0 1px 3px rgba(0,0,0,0.6);">Морской закат Пейзаж</div>
+                </div>
+            </div>
+            <div class="hero-block" id="realismIntroBlock">
+                <div class="hero-text">
+                    <h2>Реализм</h2>
+                    <p><strong>Реализм</strong> — художественное направление, которое стремится к объективному, правдивому изображению действительности. Цель — осмыслить жизнь такой, какая она есть — со всеми её радостями, страданиями и противоречиями.</p>
+                    <p><strong>Особенности реализма:</strong></p>
+                    <ul class="tech-list">
+                        <li>Художники-реалисты отвергли идеализированные образы и пафос, сосредоточившись на обыденности и подлинности человеческого опыта.</li>
+                        <li>Стремились запечатлеть правду момента, передать психологию человека и социальный контекст времени.</li>
+                        <li>Со временем реализм разделился на несколько течений, каждое из которых имело свою философию и акценты.</li>
+                    </ul>
+                    <p><strong>Например:</strong></p>
+                    <p><strong>Социальный реализм</strong> — сосредоточен на изображении жизни рабочего класса, социальных неравенств и трудовых будней.</p>
+                    <p><strong>Критический реализм</strong> — делал акцент на осмыслении социальных проблем, обличении несправедливости и разрыве между богатыми и бедными.</p>
+                    <p><strong>Магический реализм</strong> — более поздняя форма, где реальные сцены переплетаются с элементами фантазии и метафоры.</p>
+                </div>
+                <div class="hero-image" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/JEAN-FRAN%C3%87OIS_MILLET_-_El_%C3%81ngelus_%28Museo_de_Orsay%2C_1857-1859._%C3%93leo_sobre_lienzo%2C_55.5_x_66_cm%29.jpg/1280px-JEAN-FRAN%C3%87OIS_MILLET_-_El_%C3%81ngelus_%28Museo_de_Orsay%2C_1857-1859._%C3%93leo_sobre_lienzo%2C_55.5_x_66_cm%29.jpg');">
+                    <div style="position: absolute; bottom: 12px; left: 12px; right: 12px; text-align:center; color:#fff; font-size:0.9rem; text-shadow:0 1px 3px rgba(0,0,0,0.6);">Анжелюс — Жан-Франсуа Милле</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="realismPage" class="page">
+            <div class="page-title">Техники рисования карандашом</div>
+            <div class="page-sub">Штриховка, тушёвка, растушёвка и создание объёма</div>
+
+            <div class="hero-block">
+                <div class="hero-text">
+                    <h2>Техники рисования карандашом</h2>
+                    <p>Техника рисования карандашом включает несколько основных методов, которые помогают передать объём, фактуру, светотень и другие визуальные эффекты. Основные техники — штриховка, тушёвка и растушёвка.</p>
+                    <h3>Штриховка</h3>
+                    <p>Это классическая техника, при которой объект покрывают равномерными штрихами в одном или нескольких направлениях. От расстояния между линиями, угла наклона и интенсивности нажима зависит результат.</p>
+                    <p><strong>Виды штриховки:</strong></p>
+                    <ul class="tech-list">
+                        <li>Параллельные короткие штрихи. Используются для создания базового объёма и передачи фактуры.</li>
+                        <li>Перекрёстная штриховка. Два и более слоя разноправленных линий, образующих сеточку для более глубокого тона.</li>
+                        <li>Длинные параллельные штрихи (вертикальные, горизонтальные или диагональные).</li>
+                        <li>Зигзагообразные линии, хаотичные короткие штрихи.</li>
+                        <li>Контурная (фигурная) штриховка. Линии следуют форме объекта, что помогает передать его материальность.</li>
+                    </ul>
+                    <h3>Тушёвка</h3>
+                    <p>Разновидность штриховки, при которой карандаш не отрывается от бумаги, а штрихи ложатся в плотную друг к другу.</p>
+                    <h3>Растушёвка</h3>
+                    <p>Это растирание штрихов специальными инструментами (ватными палочками, мягкой бумагой, растушёвкой) для создания плавных переходов тона, смягчения контуров и придания изображению эффекта «натуральности».</p>
+                </div>
+                <div class="hero-image" style="background-image: url('https://art-bogema.ru/wp-content/uploads/2020/02/depositphotos_16646985-stock-photo-pencil-drawing1.jpg');">
+                    <div style="position: absolute; bottom: 12px; left: 12px; right: 12px; text-align:center; color:#fff; font-size:0.9rem; text-shadow:0 1px 3px rgba(0,0,0,0.6);">Разновидности штриховки</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pencilPage" class="page">
+            <div class="page-title">Техники рисования тушью</div>
+            <div class="page-sub">Линия, пятно, контраст и выразительные приёмы</div>
+
+            <div class="hero-block">
+                <div class="hero-text">
+                    <h2>Тушь — выразительный графический материал</h2>
+                    <p>Тушь — это графический материал, который позволяет создавать выразительные изображения с помощью линии, штрихов и тональных переходов. Техника работы с тушью включает различные приёмы, которые зависят от инструмента, композиции и желаемого эффекта.</p>
+                    <h3>Основные техники рисования тушью:</h3>
+                    <p><strong>Линейный рисунок.</strong> Чистые контуры различной толщины, определяющие форму и характер объектов.</p>
+                    <p><strong>Штриховка параллельными линиями.</strong> Используется для создания тональных переходов и объёма. Линии должны быть прямыми, идти в одном направлении и прерываться, пересекаясь друг с другом. Их можно наносить в горизонтальном, вертикальном или диагональном направлении.</p>
+                    <p><strong>Перекрёстная штриховка.</strong> Штрихи наносятся в направлениях, препятствующих нивелированию формы. Такая техника используется для передачи шероховатой фактуры и углубления тона, а также для изображения объёма объектов согласно светотеневой раскладке.</p>
+                    <p><strong>Контурная штриховка.</strong> Линии следуют изгибам объекта, что помогает создать иллюзию объёма, особенно для изогнутых объектов. Использование контурных линий вместо прямых штриховок придаёт рисунку больше глубины и формы.</p>
+                    <p><strong>Точечная техника (стипплинг).</strong> Основана на создании теней и глубины с помощью тщательно расставленных точек. Меньший размер пера создаёт более мелкие точки. Эта техника позволяет точно контролировать контраст между светлыми и тёмными участками в рисунке.</p>
+                    <p><strong>Сухая кисть.</strong> Тушь наносится быстрыми точными движениями. В неразбавленном виде она достаточно густая, не успевает расплываться на бумаге и ложится чётко. Такая техника часто используется для быстрых набросков.</p>
+                    <p><strong>Сплошная заливка.</strong> Используется для создания силуэтов и акцентных чёрных областей.</p>
+                    <p><strong>Влажная кисть.</strong> При работе влажной кистью тушь расползается и даёт мягкие расплывчатые пятна. В этом случае работа с тушью напоминает работу с акварелью — это свободная техника, позволяющая добиться разного тона.</p>
+                </div>
+                <div class="hero-image" style="background-image: url('https://i.pinimg.com/736x/e0/71/84/e07184d45a184eaabdfb8c4bde40022f.jpg');">
+                    <div style="position: absolute; bottom: 12px; left: 12px; right: 12px; text-align:center; color:#fff; font-size:0.9rem; text-shadow:0 1px 3px rgba(0,0,0,0.6);">Тушевая графика</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gamesPage" class="page">
+            <div class="page-title">Игры</div>
+            <div class="page-sub">Выберите одну из мини-игр, чтобы проверить свои знания.</div>
+            <div class="game-grid">
+                <div class="game-card">
+                    <div class="game-card-title">Угадай стиль</div>
+                    <div class="game-card-text">Посмотрите на картину и выберите, какой художественный стиль она представляет.</div>
+                    <button class="game-action-btn" data-game="style">Открыть</button>
+                </div>
+                <div class="game-card">
+                    <div class="game-card-title">Угадай автора картины</div>
+                    <div class="game-card-text">Узнайте автора по названию картины или её описанию.</div>
+                    <button class="game-action-btn" data-game="author">Открыть</button>
+                </div>
+            </div>
+            <div class="game-panel" id="gamePanel">
+                <div class="game-panel-title">Выберите игру, чтобы начать.</div>
+                <div class="game-panel-text">Здесь появится выбранная мини-игра и краткое описание.</div>
+                <div class="quiz-area" id="quizArea"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Язык Кисти — изучение стилей и техник изобразительного искусства</p>
+            <p>© Проект Кванториум 2026</p>
+        </footer>
+    </div>
+</div>
+
+<script>
+    const galleryData = [
+        { title: "Впечатление. Восход солнца", author: "Клод Моне", style: "Импрессионизм", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Claude_Monet%2C_Impression%2C_soleil_levant.jpg/1280px-Claude_Monet%2C_Impression%2C_soleil_levant.jpg" },
+        { title: "Звёздная ночь", author: "Винсент Ван Гог", style: "Постимпрессионизм", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" },
+        { title: "Анжелюс", author: "Жан-Франсуа Милле", style: "Реализм", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/JEAN-FRAN%C3%87OIS_MILLET_-_El_%C3%81ngelus_%28Museo_de_Orsay%2C_1857-1859._%C3%93leo_sobre_lienzo%2C_55.5_x_66_cm%29.jpg/1280px-JEAN-FRAN%C3%87OIS_MILLET_-_El_%C3%81ngelus_%28Museo_de_Orsay%2C_1857-1859._%C3%93leo_sobre_lienzo%2C_55.5_x_66_cm%29.jpg" },
+        { title: "Бал в Мулен де ла Галетт", author: "Огюст Ренуар", style: "Импрессионизм", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Pierre-Auguste_Renoir%2C_Le_Moulin_de_la_Galette.jpg/1280px-Pierre-Auguste_Renoir%2C_Le_Moulin_de_la_Galette.jpg" },
+        { title: "Чёрный квадрат", author: "Казимир Малевич", style: "Супрематизм", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d9/%D0%A7%D1%91%D1%80%D0%BD%D1%8B%D0%B9_%D1%81%D1%83%D0%BF%D1%80%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D0%B2%D0%B0%D0%B4%D1%80%D0%B0%D1%82._1915._%D0%93%D0%A2%D0%93.png" },
+        { title: "Утро в сосновом лесу", author: "Иван Шишкин", style: "Реализм", imageUrl: "https://www.arts-dnevnik.ru/wp-content/uploads/2018/02/imgonline-com-ua-Compressed-lueUceKLbwL.jpg" },
+        { title: "Постоянство памяти", author: "Сальвадор Дали", style: "Сюрреализм", imageUrl: "https://upload.wikimedia.org/wikipedia/ru/thumb/d/dd/The_Persistence_of_Memory.jpg/1280px-The_Persistence_of_Memory.jpg" },
+        { title: "Девушка с жемчужной серёжкой", author: "Ян Вермеер", style: "Барокко", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/%D0%94%D0%B5%D0%B2%D1%83%D1%88%D0%BA%D0%B0_%D1%81_%D0%B6%D0%B5%D0%BC%D1%87%D1%83%D0%B6%D0%BD%D0%BE%D0%B9_%D1%81%D0%B5%D1%80%D1%91%D0%B6%D0%BA%D0%BE%D0%B9.jpg/1280px-%D0%94%D0%B5%D0%B2%D1%83%D1%88%D0%BA%D0%B0_%D1%81_%D0%B6%D0%B5%D0%BC%D1%87%D1%83%D0%B6%D0%BD%D0%BE%D0%B9_%D1%81%D0%B5%D1%80%D1%91%D0%B6%D0%BA%D0%BE%D0%B9.jpg" }
+    ];
+
+    function buildGallery() {
+        const container = document.getElementById('galleryGrid');
+        if (!container) return;
+        container.innerHTML = '';
+        galleryData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'art-card';
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'art-image';
+            if (item.imageUrl && item.imageUrl.trim() !== "") {
+                imageDiv.style.backgroundImage = `url('${item.imageUrl}')`;
+            } else {
+                imageDiv.style.backgroundColor = "#b0a088";
+            }
+            const labelSpan = document.createElement('div');
+            labelSpan.className = 'image-label';
+            labelSpan.textContent = item.title;
+            imageDiv.appendChild(labelSpan);
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'art-info';
+            infoDiv.innerHTML = `<div class="art-title">${item.title}</div><div class="art-author">${item.author}</div><span class="art-style">${item.style}</span>`;
+            card.appendChild(imageDiv);
+            card.appendChild(infoDiv);
+            container.appendChild(card);
+        });
+    }
+
+    const pages = {
+        gallery: document.getElementById('galleryPage'),
+        impressionism: document.getElementById('impressionismPage'),
+        realism: document.getElementById('realismPage'),
+        pencil: document.getElementById('pencilPage'),
+        games: document.getElementById('gamesPage')
+    };
+
+    function setActivePage(pageId) {
+        Object.keys(pages).forEach(id => pages[id].classList.remove('active-page'));
+        if (pages[pageId]) pages[pageId].classList.add('active-page');
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-page') === pageId) btn.classList.add('active');
+        });
+    }
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pageId = btn.getAttribute('data-page');
+            if (pageId && pages[pageId]) setActivePage(pageId);
+        });
+    });
+
+    function initHeroImages() {
+        const styleImg = document.getElementById('styleHeroImage');
+        const pencilImg = document.getElementById('pencilHeroImage');
+        const inkImg = document.getElementById('inkHeroImage');
+        
+        const styleInput = document.getElementById('styleImageUrl');
+        const pencilInput = document.getElementById('pencilImageUrl');
+        const inkInput = document.getElementById('inkImageUrl');
+        
+        function updateImage(container, url) {
+            if (url && url.trim() !== "") {
+                container.style.backgroundImage = `url('${url}')`;
+                container.style.backgroundSize = "cover";
+                const placeholder = container.querySelector('.image-placeholder-text');
+                if (placeholder) placeholder.style.opacity = "0";
+            } else {
+                container.style.backgroundImage = "none";
+                const placeholder = container.querySelector('.image-placeholder-text');
+                if (placeholder) placeholder.style.opacity = "1";
+            }
+        }
+        
+        if (styleInput && styleImg) {
+            updateImage(styleImg, styleInput.value);
+            styleInput.addEventListener('input', (e) => updateImage(styleImg, e.target.value));
+        }
+        if (pencilInput && pencilImg) {
+            updateImage(pencilImg, pencilInput.value);
+            pencilInput.addEventListener('input', (e) => updateImage(pencilImg, e.target.value));
+        }
+        if (inkInput && inkImg) {
+            updateImage(inkImg, inkInput.value);
+            inkInput.addEventListener('input', (e) => updateImage(inkImg, e.target.value));
+        }
+    }
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+
+    function shuffleArray(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function renderAuthorQuiz(item) {
+        const quizArea = document.getElementById('quizArea');
+        const panelText = document.querySelector('.game-panel-text');
+        if (!quizArea || !panelText) return;
+
+        const allAuthors = [...new Set(galleryData.map(entry => entry.author))];
+        const wrongAuthors = allAuthors.filter(author => author !== item.author);
+        shuffleArray(wrongAuthors);
+        const options = shuffleArray([item.author, ...wrongAuthors.slice(0, 3)]);
+
+        panelText.textContent = 'Найдите правильного автора картины. Сравните варианты и выберите один из ответов.';
+
+        quizArea.innerHTML = `
+            <div class="quiz-question">Кто автор картины «${item.title}»?</div>
+            ${item.imageUrl ? `<div class="quiz-image" style="background-image:url('${item.imageUrl}')"></div>` : ''}
+            <div class="quiz-options">
+                ${options.map(option => `<button class="option-btn" type="button" data-author="${option}">${option}</button>`).join('')}
+            </div>
+            <div class="quiz-result" id="quizResult"></div>
+            <button class="next-question-btn" id="nextQuestionBtn" style="display:none">Следующий вопрос</button>
+        `;
+
+        document.querySelectorAll('.option-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const selectedAuthor = button.dataset.author;
+                const resultText = document.getElementById('quizResult');
+                const nextButton = document.getElementById('nextQuestionBtn');
+                const allButtons = document.querySelectorAll('.option-btn');
+                allButtons.forEach(btn => btn.disabled = true);
+                if (selectedAuthor === item.author) {
+                    button.classList.add('correct');
+                    if (resultText) {
+                        resultText.textContent = 'Верно! Это автор картины.';
+                        resultText.className = 'quiz-result correct';
+                    }
+                } else {
+                    button.classList.add('wrong');
+                    const correctBtn = Array.from(allButtons).find(btn => btn.dataset.author === item.author);
+                    if (correctBtn) correctBtn.classList.add('correct');
+                    if (resultText) {
+                        resultText.textContent = `Неправильно. Правильный ответ: ${item.author}.`;
+                        resultText.className = 'quiz-result wrong';
+                    }
+                }
+                if (nextButton) {
+                    nextButton.style.display = 'inline-block';
+                    nextButton.addEventListener('click', () => startAuthorGame());
+                }
+            });
+        });
+    }
+
+    function startAuthorGame() {
+        const randomIndex = getRandomInt(galleryData.length);
+        renderAuthorQuiz(galleryData[randomIndex]);
+    }
+
+    function initGamesPage() {
+        const panelTitle = document.querySelector('.game-panel-title');
+        const panelText = document.querySelector('.game-panel-text');
+        document.querySelectorAll('.game-action-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const game = button.dataset.game;
+                if (game === 'style') {
+                    panelTitle.textContent = 'Игра: Угадай стиль';
+                    panelText.innerHTML = 'Посмотрите на картину и выберите правильный стиль. Пример вопрос: «В каком стиле выполнена эта работа?»';
+                    document.getElementById('quizArea').innerHTML = '';
+                } else if (game === 'author') {
+                    panelTitle.textContent = 'Игра: Угадай автора картины';
+                    startAuthorGame();
+                }
+            });
+        });
+    }
+    
+    function initStyleToggle() {
+        const btn = document.getElementById('styleMoreBtn');
+        const box = document.getElementById('styleHistory');
+        if (!btn || !box) return;
+        btn.addEventListener('click', () => {
+            const isOpen = box.style.display === 'block';
+            box.style.display = isOpen ? 'none' : 'block';
+            btn.textContent = isOpen ? 'Подробнее' : 'Свернуть';
+        });
+    }
+
+    function initInkToggle() {
+        const btn = document.getElementById('inkMoreBtn');
+        const box = document.getElementById('inkHistory');
+        if (!btn || !box) return;
+        btn.addEventListener('click', () => {
+            const isOpen = box.style.display === 'block';
+            box.style.display = isOpen ? 'none' : 'block';
+            btn.textContent = isOpen ? 'Подробнее' : 'Свернуть';
+        });
+    }
+
+    buildGallery();
+    setActivePage('gallery');
+    initHeroImages();
+    initGamesPage();
+    initStyleToggle();
+    initInkToggle();
+</script>
+</body>
+</html>
